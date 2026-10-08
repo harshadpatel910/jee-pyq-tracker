@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JEE PYQ Tracker</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f5f1;--fg:#1d1d1b;--card:#fff;--line:#d9d6cc;--acc:#2f5bd8;--ok:#1f9d55;--mut:#6b6a63}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17181b;--fg:#ecebe6;--card:#222428;--line:#3a3d43;--acc:#7da0ff;--ok:#4cc27f;--mut:#9a9a94}}
+:root[data-theme="dark"]{--bg:#17181b;--fg:#ecebe6;--card:#222428;--line:#3a3d43;--acc:#7da0ff;--ok:#4cc27f;--mut:#9a9a94}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.4}
+main{max-width:640px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:2.4rem;margin:12vh 0 8px;text-align:center}
+.sub{text-align:center;color:var(--mut);margin-bottom:32px}
+h2{font-size:1.3rem;margin:8px 0 16px}
+.big{display:block;width:100%;padding:22px;margin:0 0 14px;font-size:1.2rem;font-weight:600;background:var(--card);color:var(--fg);border:2px solid var(--line);border-radius:10px;cursor:pointer;text-align:left}
+.big:hover{border-color:var(--acc)}
+.big small{display:block;font-weight:400;color:var(--mut);font-size:.85rem;margin-top:4px}
+.back{background:none;border:0;color:var(--acc);font-size:1rem;cursor:pointer;padding:4px 0;margin-bottom:8px}
+.grade{margin:22px 0 8px;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);display:flex;justify-content:space-between}
+.ch{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:8px;background:var(--card);border:1px solid var(--line);border-radius:8px}
+.ch.done{border-color:var(--ok)}
+.ch.done .n{text-decoration:line-through;color:var(--mut)}
+.n{flex:1}
+.ck{width:34px;height:34px;flex:none;border:2px solid var(--line);border-radius:8px;background:transparent;color:#fff;font-size:1.1rem;cursor:pointer}
+.ch.done .ck{background:var(--ok);border-color:var(--ok)}
+#st{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));font-size:.75rem;color:var(--mut);background:var(--card);border:1px solid var(--line);padding:4px 10px;border-radius:99px}
+</style></head><body><main id="app"></main><div id="st">loading…</div>
+<script>
+const D={
+mains:{name:"JEE Mains",sub:"NTA syllabus",
+Physics:{11:["Units & Measurements","Kinematics","Laws of Motion","Work, Energy & Power","Centre of Mass & Rotational Motion","Gravitation","Mechanical Properties of Solids","Mechanical Properties of Fluids","Thermal Properties of Matter","Thermodynamics","Kinetic Theory of Gases","Oscillations (SHM)","Waves & Sound"],
+12:["Electrostatics","Current Electricity","Moving Charges & Magnetism","Magnetism & Matter","Electromagnetic Induction","Alternating Current","Electromagnetic Waves","Ray Optics","Wave Optics","Dual Nature of Matter & Radiation","Atoms","Nuclei","Semiconductor Electronics"]},
+Chemistry:{11:["Some Basic Concepts of Chemistry (Mole Concept)","Atomic Structure","Classification of Elements & Periodicity","Chemical Bonding & Molecular Structure","States of Matter (Gaseous State)","Chemical Thermodynamics","Chemical Equilibrium","Ionic Equilibrium","Redox Reactions","General Organic Chemistry (GOC)","Hydrocarbons"],
+12:["Solutions","Electrochemistry","Chemical Kinetics","p-Block Elements","d- and f-Block Elements","Coordination Compounds","Principles of Qualitative Analysis","Haloalkanes & Haloarenes","Alcohols, Phenols & Ethers","Aldehydes, Ketones & Carboxylic Acids","Amines","Biomolecules"]},
+Maths:{11:["Sets, Relations & Functions","Complex Numbers & Quadratic Equations","Permutations & Combinations","Binomial Theorem","Sequences & Series","Trigonometry","Straight Lines","Circles","Conic Sections (Parabola, Ellipse, Hyperbola)","Limits & Derivatives","Statistics","Mathematical Reasoning"],
+12:["Matrices & Determinants","Inverse Trigonometric Functions","Continuity & Differentiability","Application of Derivatives","Indefinite Integration","Definite Integration","Area Under Curves","Differential Equations","Vector Algebra","Three Dimensional Geometry","Probability"]}},
+adv:{name:"JEE Advanced",sub:"IIT syllabus",
+Physics:{11:["General Physics (Units, Dimensions & Error Analysis)","Kinematics","Newton's Laws & Friction","Work, Energy & Power","Centre of Mass & Collisions","Rotational Mechanics","Gravitation","Simple Harmonic Motion","Fluid Mechanics","Elasticity & Surface Tension","Thermal Expansion & Calorimetry","Heat Transfer & Thermal Radiation","Kinetic Theory & Thermodynamics","Waves on String & Sound Waves"],
+12:["Electrostatics","Capacitors","Current Electricity","Moving Charges & Magnetism","Electromagnetic Induction & Inductance","Electromagnetic Waves","Ray Optics","Wave Optics","Photoelectric Effect & Atomic Models (Bohr)","X-Rays","Nuclear Physics & Radioactivity"]},
+Chemistry:{11:["Mole Concept & Stoichiometry","Atomic Structure","Periodic Properties","Chemical Bonding","Gaseous State","Chemical & Ionic Equilibrium","Thermodynamics & Thermochemistry","Redox Reactions","Hydrogen & s-Block Elements","General Organic Chemistry (GOC)","Hydrocarbons","Stereochemistry & Isomerism"],
+12:["Solutions","Electrochemistry","Chemical Kinetics","Solid State","Surface Chemistry","p-Block Elements","d- and f-Block Elements","Coordination Compounds","Isolation of Metals (Metallurgy)","Qualitative Analysis","Haloalkanes & Haloarenes","Alcohols, Phenols & Ethers","Aldehydes & Ketones","Carboxylic Acids & Derivatives","Amines","Biomolecules","Polymers","Practical Organic Chemistry"]},
+Maths:{11:["Complex Numbers","Quadratic Equations & Inequalities","Sequences & Series","Permutations & Combinations","Binomial Theorem","Trigonometric Functions & Equations","Straight Lines","Circles","Parabola","Ellipse","Hyperbola"],
+12:["Matrices & Determinants","Probability","Inverse Trigonometric Functions","Functions","Limits, Continuity & Differentiability","Application of Derivatives","Indefinite Integration","Definite Integration & Area","Differential Equations","Vector Algebra","Three Dimensional Geometry","Properties of Triangles"]}}};
+const app=document.getElementById("app"),st=document.getElementById("st");
+let done={},view={e:null,s:null},ref=null;
+const key=(e,s,g,c)=>[e,s,g,c].join("|");
+function setSt(t){st.textContent=t}
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function render(){
+ if(!view.e){app.innerHTML=`<h1>Hello 👋</h1><p class="sub">Your JEE PYQ tracker</p>`+
+  ["mains","adv"].map(e=>`<button class="big" data-e="${e}">${D[e].name}<small>${D[e].sub}</small></button>`).join("")+`<p style="text-align:center;margin-top:28px"><button class="back" id="ex">⬇ Export progress (JSON)</button> &nbsp; <button class="back" id="im">⬆ Import progress</button><input type="file" id="fi" accept=".json" hidden></p>`;
+  ex.onclick=exportJ;im.onclick=()=>fi.click();fi.onchange=()=>fi.files[0]&&importJ(fi.files[0]);
+  app.querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>{view={e:b.dataset.e,s:null};render()});return}
+ const E=D[view.e];
+ if(!view.s){app.innerHTML=`<button class="back" id="bk">← Back</button><h2>${E.name}: choose subject</h2>`+
+  ["Physics","Chemistry","Maths"].map(s=>{const all=[11,12].flatMap(g=>E[s][g].map(c=>key(view.e,s,g,c)));const n=all.filter(k=>done[k]).length;
+  return `<button class="big" data-s="${s}">${s}<small>${n} / ${all.length} chapters PYQs done</small></button>`}).join("");
+  bk.onclick=()=>{view={e:null,s:null};render()};
+  app.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{view.s=b.dataset.s;render()});return}
+ const S=E[view.s];
+ app.innerHTML=`<button class="back" id="bk">← Back</button><h2>${E.name} · ${view.s}</h2>`+
+ [11,12].map(g=>{const n=S[g].filter(c=>done[key(view.e,view.s,g,c)]).length;
+  return `<div class="grade"><span>Class ${g}</span><span>${n} / ${S[g].length}</span></div>`+
+  S[g].map(c=>{const k=key(view.e,view.s,g,c),d=!!done[k];
+   return `<div class="ch${d?" done":""}"><span class="n">${esc(c)}</span><button class="ck" data-k="${esc(k)}" aria-label="Mark PYQs done">${d?"✓":""}</button></div>`}).join("")}).join("");
+ bk.onclick=()=>{view.s=null;render()};
+ app.querySelectorAll(".ck").forEach(b=>b.onclick=()=>{const k=b.dataset.k;if(done[k])delete done[k];else done[k]=1;save();const y=scrollY;render();scrollTo(0,y)});
+}
+function save(){try{localStorage.setItem("jee_done",JSON.stringify(done));setSt("saved on this device ✓")}catch(e){setSt("could not save – use Export JSON")}}
+function exportJ(){const b=new Blob([JSON.stringify({app:"jee-pyq-tracker",saved:new Date().toISOString(),done},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="jee-progress.json";a.click()}
+function importJ(f){const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);done=j.done||{};save();render()}catch(e){alert("Not a valid progress file")}};r.readAsText(f)}
+try{done=JSON.parse(localStorage.getItem("jee_done")||"{}")}catch(e){}
+render();setSt("saved on this device ✓");
+</script></body></html>
