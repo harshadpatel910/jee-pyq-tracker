@@ -55,6 +55,7 @@ td,th{padding:5px 4px;text-align:left;border-bottom:1px solid var(--line)}
 .bd{background:var(--card);border:2px solid var(--line);border-radius:12px;padding:12px;text-align:center;filter:grayscale(1);opacity:.55}
 .bd.on{filter:none;opacity:1;border-color:var(--warn);background:linear-gradient(135deg,rgba(255,184,74,.25),rgba(255,107,107,.15))}
 .bd .e{font-size:2rem}.bd small{display:block;color:var(--mut);font-size:.72rem}
+.ro .form,.ro .x,.ro .ck,.ro .ed{display:none}
 .tools{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:28px}
 #st{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));font-size:.75rem;color:var(--mut);background:var(--card);border:1px solid var(--line);padding:4px 10px;border-radius:99px}
 </style></head><body><main id="app"></main><div id="st">loading…</div><input type="file" id="fi" accept=".json" hidden>
@@ -126,7 +127,7 @@ function home(){
  <p><b>You are at Level ${n}.</b> ${esc(gap(A))}</p>
  <div class="grid">${stat("Questions attempted",A.att,"b")}${stat("Correct",A.c,"g")}${stat("Wrong",A.w,"r")}${stat("Unattempted",A.u,"o")}${stat("Accuracy",pc(A.acc),"g")}${stat("Avg Q / hour",f1(A.qph),"b")}${stat("Study time (hrs)",f1(A.t/60))}${stat("Day streak",streak(),"o")}</div>
  <h3>🏆 Achievements (${B.filter(b=>b[3]).length} / ${B.length})</h3><div class="badges">${B.map(b=>`<div class="bd ${b[3]?"on":""}"><div class="e">${b[0]}</div><b>${b[1]}</b><small>${b[2]}</small></div>`).join("")}</div>
- <div class="tools"><button class="btn" data-act="xls">⬇ Download Excel</button><button class="btn alt" data-act="exj">⬇ Export JSON backup</button><button class="btn alt" data-act="imj">⬆ Import JSON backup</button></div>`}
+ <div class="tools"><button class="btn" data-act="xls">⬇ Download Excel</button><button class="btn alt" data-act="exj">⬇ Export JSON backup</button><button class="btn alt ed" data-act="imj">⬆ Import JSON backup</button>${ONLINE?(ro?'<button class="btn" data-act="unlock">🔒 Edit (PIN)</button>':'<button class="btn alt" data-act="lock">🔓 Lock</button>'):""}</div>`}
 
 function subjects(){const E=D[view.e];
  app.innerHTML=`<button class="back" data-act="back">← Back</button><h2>${E.name}: choose subject</h2>`+SUBJ.map(s=>{const ks=keys(view.e,s),n=ks.filter(k=>done[k]).length,a=agg(ks);
@@ -146,7 +147,7 @@ function panel(k,s){const rows=rowsOf(k);
  <p style="font-size:.85rem">${lvChip(lvl(s))} ${esc(gap(s))}${s.total?"":" — enter total PYQs to count coverage."}</p>
  ${rows.length?`<table><tr><th>Date</th><th>Min</th><th>✔</th><th>✘</th><th>–</th><th>Q/hr</th><th>Min/Q</th><th></th></tr>${rows.map((x,i)=>{const a=x.c+x.w;return`<tr><td>${x.d}</td><td>${x.t}</td><td>${x.c}</td><td>${x.w}</td><td>${x.u}</td><td>${a&&x.t?f1(a/(x.t/60)):"–"}</td><td>${a?f1(x.t/a):"–"}</td><td><button class="x" data-act="del" data-k="${esc(k)}" data-i="${i}" aria-label="Delete session">✕</button></td></tr>`}).join("")}</table>`:""}</div>`}
 
-app.addEventListener("click",ev=>{const b=ev.target.closest("[data-act]");if(!b)return;const a=b.dataset.act,k=b.dataset.k;
+app.addEventListener("click",ev=>{const b=ev.target.closest("[data-act]");if(!b)return;const a=b.dataset.act,k=b.dataset.k;if(ro&&["done","add","del","imj"].includes(a))return;
  if(a==="exam"){view={e:b.dataset.e,s:null,open:null}}
  else if(a==="subj"){view.s=b.dataset.s;view.open=null}
  else if(a==="back"){if(view.s){view.s=null;view.open=null}else view={e:null,s:null,open:null}}
@@ -156,12 +157,30 @@ app.addEventListener("click",ev=>{const b=ev.target.closest("[data-act]");if(!b)
   if(!t||(c+w+u)===0){alert("Enter the time taken and at least one question count.");return}
   (data[k]=data[k]||{total:0,s:[]}).s.push({d:document.getElementById("fd").value||today(),t,c,w,u});save()}
  else if(a==="del"){data[k].s.splice(+b.dataset.i,1);save()}
- else if(a==="xls")return xlsx();else if(a==="exj")return exportJ();else if(a==="imj")return fi.click();
+ else if(a==="unlock")return unlock();else if(a==="lock")return lock();else if(a==="xls")return xlsx();else if(a==="exj")return exportJ();else if(a==="imj")return fi.click();
  render()});
-app.addEventListener("change",ev=>{if(ev.target.id==="tot"){const k=ev.target.dataset.k;(data[k]=data[k]||{total:0,s:[]}).total=Math.max(0,parseInt(ev.target.value)||0);save();render()}});
+app.addEventListener("change",ev=>{if(ev.target.id==="tot"&&!ro){const k=ev.target.dataset.k;(data[k]=data[k]||{total:0,s:[]}).total=Math.max(0,parseInt(ev.target.value)||0);save();render()}});
 fi.onchange=()=>fi.files[0]&&importJ(fi.files[0]);
 
-function save(){try{localStorage.setItem("jee_done",JSON.stringify(done));localStorage.setItem("jee_data",JSON.stringify(data));setSt("saved on this device ✓")}catch(e){setSt("could not save – use Download Excel / Export JSON")}}
+const SUPA_URL="https://ifibetnmwolbqfeixsvf.supabase.co",SUPA_KEY="sb_publishable_fNXnp4XoWKi0IjcH6L6DQA_mcwC_HOy";
+const ONLINE=!SUPA_URL.startsWith("PASTE");
+let ro=ONLINE,pin="",tm=null,last="";
+try{pin=localStorage.getItem("jee_pin")||""}catch(e){}
+const H={apikey:SUPA_KEY,Authorization:"Bearer "+SUPA_KEY,"Content-Type":"application/json"};
+const rpc=(fn,b)=>fetch(SUPA_URL+"/rest/v1/rpc/"+fn,{method:"POST",headers:H,body:JSON.stringify(b)}).then(r=>{if(!r.ok)throw 0;return r.json()});
+const applyRo=()=>document.body.classList.toggle("ro",ro);
+function local(){try{localStorage.setItem("jee_done",JSON.stringify(done));localStorage.setItem("jee_data",JSON.stringify(data));return true}catch(e){return false}}
+function push(){setSt("saving…");clearTimeout(tm);tm=setTimeout(()=>rpc("save_progress",{p_pin:pin,p_payload:{done,data}}).then(ok=>setSt(ok?"saved online ✓":"wrong PIN – not saved")).catch(()=>setSt("online save failed – kept on this device")),600)}
+function save(){const ok=local();if(ONLINE&&!ro)push();else setSt(ok?"saved on this device ✓":"could not save – use Download Excel")}
+function dl(name,d){const a=document.createElement("a");a.href=URL.createObjectURL(d instanceof Blob?d:new Blob([d]));a.download=name;a.click()}
+async function pull(first){try{const r=await fetch(SUPA_URL+"/rest/v1/progress?id=eq.1&select=payload",{headers:H});if(!r.ok)throw 0;const j=await r.json(),p=j[0]&&j[0].payload||{};
+ const has=Object.keys(p.done||{}).length||Object.keys(p.data||{}).length;
+ if(has){const t=JSON.stringify(p);if(t!==last){last=t;if(ro||first){done=p.done||{};data=p.data||{};local();render()}}}
+ else if(!ro&&(Object.keys(done).length||Object.keys(data).length))push();
+ setSt(ro?"viewing shared progress (read-only)":"edit mode · saved online ✓")}catch(e){setSt("offline – showing last copy")}}
+async function unlock(){const p=prompt("Enter edit PIN");if(!p)return;try{if(await rpc("check_pin",{p_pin:p})){pin=p;try{localStorage.setItem("jee_pin",p)}catch(e){}ro=false;applyRo();await pull(true);render()}else alert("Wrong PIN")}catch(e){alert("Could not reach the server")}}
+function lock(){ro=true;pin="";try{localStorage.removeItem("jee_pin")}catch(e){}applyRo();pull(true).then(render)}
+if(ONLINE)(async()=>{applyRo();if(pin){try{ro=!(await rpc("check_pin",{p_pin:pin}))}catch(e){}}applyRo();await pull(true);render();setInterval(()=>{if(ro)pull(false)},60000)})();
 
 function xlsx(){if(typeof XLSX==="undefined"){alert("Excel library did not load. Check internet connection and try again.");return}
  const sum=[["Exam","Subject","Class","Chapter","PYQs done (tick)","Total PYQs","Sessions","Attempted","Correct","Wrong","Unattempted","Total time (min)","Accuracy %","Avg Q/hour","Avg min/Q","Max min/Q","Min min/Q","Coverage %","Level"]],ses=[["Exam","Subject","Class","Chapter","Date","Time (min)","Attempted","Correct","Wrong","Unattempted","Q/hour","Min/Q"]];
@@ -171,9 +190,9 @@ function xlsx(){if(typeof XLSX==="undefined"){alert("Excel library did not load.
  const lv=[["Level","Name","Min accuracy %","Min Q/hour","Min coverage %"],...L.map(l=>[l.n,l.name,l.acc,l.qph,l.cov])];
  const wb=XLSX.utils.book_new();
  [["Chapter Summary",sum],["Sessions Log",ses],["Target Levels",lv]].forEach(([n,a])=>{const w=XLSX.utils.aoa_to_sheet(a);w["!cols"]=a[0].map((_,i)=>({wch:i===3?42:14}));XLSX.utils.book_append_sheet(wb,w,n)});
- XLSX.writeFile(wb,"jee-pyq-progress.xlsx")}
-function exportJ(){const b=new Blob([JSON.stringify({app:"jee-pyq-tracker",saved:new Date().toISOString(),done,data},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="jee-progress.json";a.click()}
+ dl("jee-pyq-progress.xlsx",XLSX.write(wb,{bookType:"xlsx",type:"array"}))}
+function exportJ(){dl("jee-progress.json",JSON.stringify({app:"jee-pyq-tracker",saved:new Date().toISOString(),done,data},null,2))}
 function importJ(f){const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);done=j.done||{};data=j.data||{};save();render()}catch(e){alert("Not a valid progress file")}};r.readAsText(f)}
 try{done=JSON.parse(localStorage.getItem("jee_done")||"{}");data=JSON.parse(localStorage.getItem("jee_data")||"{}")}catch(e){}
-render();setSt("saved on this device ✓");
+applyRo();render();setSt(ONLINE?"loading shared progress…":"saved on this device ✓");
 </script></body></html>
