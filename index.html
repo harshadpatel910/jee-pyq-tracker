@@ -2,30 +2,62 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>JEE PYQ Tracker</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f5f1;--fg:#1d1d1b;--card:#fff;--line:#d9d6cc;--acc:#2f5bd8;--ok:#1f9d55;--mut:#6b6a63}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17181b;--fg:#ecebe6;--card:#222428;--line:#3a3d43;--acc:#7da0ff;--ok:#4cc27f;--mut:#9a9a94}}
-:root[data-theme="dark"]{--bg:#17181b;--fg:#ecebe6;--card:#222428;--line:#3a3d43;--acc:#7da0ff;--ok:#4cc27f;--mut:#9a9a94}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f5f1;--fg:#1d1d1b;--card:#fff;--line:#d9d6cc;--acc:#2f5bd8;--ok:#1f9d55;--mut:#6b6a63;--bad:#d64545;--warn:#e89a1c;--Physics:#2f6fe0;--Chemistry:#16a085;--Maths:#8e44ad}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17181b;--fg:#ecebe6;--card:#222428;--line:#3a3d43;--acc:#7da0ff;--ok:#4cc27f;--mut:#9a9a94;--bad:#ff7070;--warn:#ffb84a}}
+:root[data-theme="dark"]{--bg:#17181b;--fg:#ecebe6;--card:#222428;--line:#3a3d43;--acc:#7da0ff;--ok:#4cc27f;--mut:#9a9a94;--bad:#ff7070;--warn:#ffb84a}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.4}
-main{max-width:640px;margin:0 auto;padding:24px 16px 48px}
-h1{font-size:2.4rem;margin:12vh 0 8px;text-align:center}
-.sub{text-align:center;color:var(--mut);margin-bottom:32px}
-h2{font-size:1.3rem;margin:8px 0 16px}
-.big{display:block;width:100%;padding:22px;margin:0 0 14px;font-size:1.2rem;font-weight:600;background:var(--card);color:var(--fg);border:2px solid var(--line);border-radius:10px;cursor:pointer;text-align:left}
+main{max-width:760px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:2.2rem;margin:4vh 0 4px;text-align:center}
+.sub{text-align:center;color:var(--mut);margin-bottom:24px}
+h2{font-size:1.3rem;margin:8px 0 12px}
+h3{font-size:1rem;margin:20px 0 10px}
+.big{display:block;width:100%;padding:18px;margin:0 0 12px;font-size:1.15rem;font-weight:600;background:var(--card);color:var(--fg);border:2px solid var(--line);border-radius:10px;cursor:pointer;text-align:left}
 .big:hover{border-color:var(--acc)}
-.big small{display:block;font-weight:400;color:var(--mut);font-size:.85rem;margin-top:4px}
+.big small{display:block;font-weight:400;color:var(--mut);font-size:.85rem;margin:4px 0 8px}
+.big[data-c]{border-left:8px solid var(--c)}
 .back{background:none;border:0;color:var(--acc);font-size:1rem;cursor:pointer;padding:4px 0;margin-bottom:8px}
+.btn{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:10px 16px;font-size:.95rem;font-weight:600;cursor:pointer}
+.btn.alt{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+.bar{height:10px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#ff6b6b,#ffb84a,#4cc27f,#2f9bff);background-size:300px 100%}
 .grade{margin:22px 0 8px;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);display:flex;justify-content:space-between}
-.ch{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:8px;background:var(--card);border:1px solid var(--line);border-radius:8px}
-.ch.done{border-color:var(--ok)}
+.ch{margin-bottom:8px;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--c,var(--line));border-radius:8px}
+.ch.done{border-color:var(--ok);border-left-color:var(--ok)}
 .ch.done .n{text-decoration:line-through;color:var(--mut)}
-.n{flex:1}
+.row{display:flex;align-items:center;gap:10px;padding:10px 12px}
+.n{flex:1;cursor:pointer}
+.n small{display:block;color:var(--mut);font-size:.75rem;text-decoration:none}
 .ck{width:34px;height:34px;flex:none;border:2px solid var(--line);border-radius:8px;background:transparent;color:#fff;font-size:1.1rem;cursor:pointer}
 .ch.done .ck{background:var(--ok);border-color:var(--ok)}
+.lv{flex:none;font-size:.72rem;font-weight:700;padding:3px 8px;border-radius:99px;color:#fff;background:var(--mut)}
+.L1{background:#e67e22}.L2{background:#d4ac0d}.L3{background:#27ae60}.L4{background:#2980b9}.L5{background:#8e44ad}
+.panel{padding:4px 14px 14px;border-top:1px dashed var(--line)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:10px 0}
+.stat{background:var(--bg);border-radius:8px;padding:8px 10px}
+.stat b{display:block;font-size:1.15rem}
+.stat span{font-size:.72rem;color:var(--mut)}
+.stat.g b{color:var(--ok)}.stat.r b{color:var(--bad)}.stat.o b{color:var(--warn)}.stat.b b{color:var(--acc)}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;align-items:end}
+label{font-size:.72rem;color:var(--mut);display:block}
+input{width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--fg);font-size:.95rem}
+table{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:8px}
+td,th{padding:5px 4px;text-align:left;border-bottom:1px solid var(--line)}
+.x{background:none;border:0;color:var(--bad);cursor:pointer;font-size:1rem}
+.ladder{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.ladder div{flex:1;min-width:110px;padding:8px;border-radius:8px;color:#fff;font-size:.78rem;opacity:.35}
+.ladder div.on{opacity:1}
+.ladder b{display:block;font-size:.95rem}
+.badges{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.bd{background:var(--card);border:2px solid var(--line);border-radius:12px;padding:12px;text-align:center;filter:grayscale(1);opacity:.55}
+.bd.on{filter:none;opacity:1;border-color:var(--warn);background:linear-gradient(135deg,rgba(255,184,74,.25),rgba(255,107,107,.15))}
+.bd .e{font-size:2rem}.bd small{display:block;color:var(--mut);font-size:.72rem}
+.tools{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:28px}
 #st{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));font-size:.75rem;color:var(--mut);background:var(--card);border:1px solid var(--line);padding:4px 10px;border-radius:99px}
-</style></head><body><main id="app"></main><div id="st">loading…</div>
+</style></head><body><main id="app"></main><div id="st">loading…</div><input type="file" id="fi" accept=".json" hidden>
 <script>
 const D={
 mains:{name:"JEE Mains",sub:"NTA syllabus",
@@ -42,34 +74,106 @@ Chemistry:{11:["Mole Concept & Stoichiometry","Atomic Structure","Periodic Prope
 12:["Solutions","Electrochemistry","Chemical Kinetics","Solid State","Surface Chemistry","p-Block Elements","d- and f-Block Elements","Coordination Compounds","Isolation of Metals (Metallurgy)","Qualitative Analysis","Haloalkanes & Haloarenes","Alcohols, Phenols & Ethers","Aldehydes & Ketones","Carboxylic Acids & Derivatives","Amines","Biomolecules","Polymers","Practical Organic Chemistry"]},
 Maths:{11:["Complex Numbers","Quadratic Equations & Inequalities","Sequences & Series","Permutations & Combinations","Binomial Theorem","Trigonometric Functions & Equations","Straight Lines","Circles","Parabola","Ellipse","Hyperbola"],
 12:["Matrices & Determinants","Probability","Inverse Trigonometric Functions","Functions","Limits, Continuity & Differentiability","Application of Derivatives","Indefinite Integration","Definite Integration & Area","Differential Equations","Vector Algebra","Three Dimensional Geometry","Properties of Triangles"]}}};
+
+/* ===== TARGET LEVELS: edit these numbers to change the goals =====
+   acc = accuracy %, qph = questions per hour, cov = % of chapter PYQs attempted */
+const L=[{n:1,name:"Starter",acc:60,qph:10,cov:20},{n:2,name:"Builder",acc:70,qph:15,cov:40},{n:3,name:"Performer",acc:75,qph:18,cov:60},{n:4,name:"Achiever",acc:80,qph:20,cov:80},{n:5,name:"JEE Ready",acc:85,qph:25,cov:100}];
+const SUBJ=["Physics","Chemistry","Maths"];
 const app=document.getElementById("app"),st=document.getElementById("st");
-let done={},view={e:null,s:null},ref=null;
+let done={},data={},view={e:null,s:null,open:null};
 const key=(e,s,g,c)=>[e,s,g,c].join("|");
-function setSt(t){st.textContent=t}
-function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+const f1=x=>x?x.toFixed(1):"–", pc=x=>Math.round(x)+"%";
+const setSt=t=>st.textContent=t;
+const today=()=>new Date().toISOString().slice(0,10);
+
+function keys(e,s){const o=[];for(const sub of s?[s]:SUBJ)for(const g of [11,12])D[e][sub][g].forEach(c=>o.push(key(e,sub,g,c)));return o}
+const allKeys=()=>["mains","adv"].flatMap(e=>keys(e));
+function calc(rows,total){let c=0,w=0,u=0,t=0;const pq=[],rate=[];
+ rows.forEach(x=>{c+=x.c;w+=x.w;u+=x.u;t+=x.t;const a=x.c+x.w;if(a>0&&x.t>0){pq.push(x.t/a);rate.push(a/(x.t/60))}});
+ const att=c+w;
+ return{c,w,u,t,att,n:rows.length,total,acc:att?c/att*100:0,qph:rate.length?rate.reduce((a,b)=>a+b)/rate.length:0,
+  avg:att&&t?t/att:0,mx:pq.length?Math.max(...pq):0,mn:pq.length?Math.min(...pq):0,cov:total?Math.min(100,att/total*100):0}}
+const rowsOf=k=>(data[k]&&data[k].s)||[];
+const S=k=>calc(rowsOf(k),(data[k]&&data[k].total)||0);
+const agg=ks=>calc(ks.flatMap(rowsOf),ks.reduce((a,k)=>a+((data[k]&&data[k].total)||0),0));
+function lvl(s){let n=0;for(const l of L){if(s.n&&s.acc>=l.acc&&s.qph>=l.qph&&s.cov>=l.cov)n=l.n;else break}return n}
+const lvChip=n=>`<span class="lv L${n}">${n?"Level "+n:"Level 0"}</span>`;
+function gap(s){const l=L[lvl(s)];if(!l)return"Top level reached 🏆";
+ const p=[];if(s.acc<l.acc)p.push(`accuracy ${pc(s.acc)} → ${l.acc}%`);if(s.qph<l.qph)p.push(`speed ${f1(s.qph)} → ${l.qph} Q/hr`);if(s.cov<l.cov)p.push(`coverage ${pc(s.cov)} → ${l.cov}%`);
+ return`Next: Level ${l.n} (${l.name}) — ${p.join(", ")||"keep going"}`}
+function streak(){const d=[...new Set(allKeys().flatMap(rowsOf).map(x=>x.d))].sort();let b=0,r=0,p=null;
+ d.forEach(x=>{const t=Date.parse(x);r=p!==null&&t-p===864e5?r+1:1;p=t;b=Math.max(b,r)});return b}
+function badges(){const ks=allKeys(),A=agg(ks),dn=ks.filter(k=>done[k]).length,l3=ks.filter(k=>lvl(S(k))>=3).length,l5=ks.filter(k=>lvl(S(k))>=5).length,sk=streak();
+ return[["🚀","First Step","Log your first session",A.n>=1],["💯","Century","100 questions attempted",A.att>=100],["🔥","500 Club","500 questions attempted",A.att>=500],["🏔️","1000 Club","1000 questions attempted",A.att>=1000],
+ ["🎯","Sharp Shooter","80%+ accuracy (50+ Qs)",A.att>=50&&A.acc>=80],["⚡","Speed Demon","20+ Q/hour overall",A.qph>=20],["✅","Chapter Done x5","5 chapters marked done",dn>=5],["🏅","Chapter Done x20","20 chapters marked done",dn>=20],
+ ["📅","7-Day Streak","Practice 7 days in a row",sk>=7],["🌟","Level 3 x5","5 chapters at Level 3+",l3>=5],["👑","Master","Any chapter at Level 5",l5>=1],["🏆","Overall Level 3","Overall level 3 or more",lvl(A)>=3]]}
+
+function bar(p,c){return`<div class="bar"><i style="width:${Math.min(100,p)}%;${c?`background:${c}`:""}"></i></div>`}
+function stat(l,v,c=""){return`<div class="stat ${c}"><b>${v}</b><span>${l}</span></div>`}
+
 function render(){
- if(!view.e){app.innerHTML=`<h1>Hello 👋</h1><p class="sub">Your JEE PYQ tracker</p>`+
-  ["mains","adv"].map(e=>`<button class="big" data-e="${e}">${D[e].name}<small>${D[e].sub}</small></button>`).join("")+`<p style="text-align:center;margin-top:28px"><button class="back" id="ex">⬇ Export progress (JSON)</button> &nbsp; <button class="back" id="im">⬆ Import progress</button><input type="file" id="fi" accept=".json" hidden></p>`;
-  ex.onclick=exportJ;im.onclick=()=>fi.click();fi.onchange=()=>fi.files[0]&&importJ(fi.files[0]);
-  app.querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>{view={e:b.dataset.e,s:null};render()});return}
- const E=D[view.e];
- if(!view.s){app.innerHTML=`<button class="back" id="bk">← Back</button><h2>${E.name}: choose subject</h2>`+
-  ["Physics","Chemistry","Maths"].map(s=>{const all=[11,12].flatMap(g=>E[s][g].map(c=>key(view.e,s,g,c)));const n=all.filter(k=>done[k]).length;
-  return `<button class="big" data-s="${s}">${s}<small>${n} / ${all.length} chapters PYQs done</small></button>`}).join("");
-  bk.onclick=()=>{view={e:null,s:null};render()};
-  app.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{view.s=b.dataset.s;render()});return}
- const S=E[view.s];
- app.innerHTML=`<button class="back" id="bk">← Back</button><h2>${E.name} · ${view.s}</h2>`+
- [11,12].map(g=>{const n=S[g].filter(c=>done[key(view.e,view.s,g,c)]).length;
-  return `<div class="grade"><span>Class ${g}</span><span>${n} / ${S[g].length}</span></div>`+
-  S[g].map(c=>{const k=key(view.e,view.s,g,c),d=!!done[k];
-   return `<div class="ch${d?" done":""}"><span class="n">${esc(c)}</span><button class="ck" data-k="${esc(k)}" aria-label="Mark PYQs done">${d?"✓":""}</button></div>`}).join("")}).join("");
- bk.onclick=()=>{view.s=null;render()};
- app.querySelectorAll(".ck").forEach(b=>b.onclick=()=>{const k=b.dataset.k;if(done[k])delete done[k];else done[k]=1;save();const y=scrollY;render();scrollTo(0,y)});
-}
-function save(){try{localStorage.setItem("jee_done",JSON.stringify(done));setSt("saved on this device ✓")}catch(e){setSt("could not save – use Export JSON")}}
-function exportJ(){const b=new Blob([JSON.stringify({app:"jee-pyq-tracker",saved:new Date().toISOString(),done},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="jee-progress.json";a.click()}
-function importJ(f){const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);done=j.done||{};save();render()}catch(e){alert("Not a valid progress file")}};r.readAsText(f)}
-try{done=JSON.parse(localStorage.getItem("jee_done")||"{}")}catch(e){}
+ const y=scrollY;
+ if(!view.e)home();else if(!view.s)subjects();else chapters();
+ scrollTo(0,y)}
+
+function home(){
+ const A=agg(allKeys()),n=lvl(A),B=badges();
+ app.innerHTML=`<h1>Hello 👋</h1><p class="sub">Your JEE PYQ tracker</p>`+
+ ["mains","adv"].map(e=>{const a=agg(keys(e)),d=keys(e).filter(k=>done[k]).length;
+  return`<button class="big" data-act="exam" data-e="${e}">${D[e].name}<small>${D[e].sub} · ${d} / ${keys(e).length} chapters done · ${a.att} Qs attempted · ${pc(a.acc)} accuracy</small>${bar(keys(e).length?d/keys(e).length*100:0)}</button>`}).join("")+
+ `<h3>🎯 Overall target level</h3><div class="ladder">${L.map(l=>`<div class="L${l.n} ${n>=l.n?"on":""}"><b>Level ${l.n}: ${l.name}</b>${l.acc}% acc · ${l.qph} Q/hr · ${l.cov}% PYQs</div>`).join("")}</div>
+ <p><b>You are at Level ${n}.</b> ${esc(gap(A))}</p>
+ <div class="grid">${stat("Questions attempted",A.att,"b")}${stat("Correct",A.c,"g")}${stat("Wrong",A.w,"r")}${stat("Unattempted",A.u,"o")}${stat("Accuracy",pc(A.acc),"g")}${stat("Avg Q / hour",f1(A.qph),"b")}${stat("Study time (hrs)",f1(A.t/60))}${stat("Day streak",streak(),"o")}</div>
+ <h3>🏆 Achievements (${B.filter(b=>b[3]).length} / ${B.length})</h3><div class="badges">${B.map(b=>`<div class="bd ${b[3]?"on":""}"><div class="e">${b[0]}</div><b>${b[1]}</b><small>${b[2]}</small></div>`).join("")}</div>
+ <div class="tools"><button class="btn" data-act="xls">⬇ Download Excel</button><button class="btn alt" data-act="exj">⬇ Export JSON backup</button><button class="btn alt" data-act="imj">⬆ Import JSON backup</button></div>`}
+
+function subjects(){const E=D[view.e];
+ app.innerHTML=`<button class="back" data-act="back">← Back</button><h2>${E.name}: choose subject</h2>`+SUBJ.map(s=>{const ks=keys(view.e,s),n=ks.filter(k=>done[k]).length,a=agg(ks);
+  return`<button class="big" data-act="subj" data-s="${s}" data-c style="--c:var(--${s})">${s}<small>${n} / ${ks.length} chapters PYQs done · ${a.att} Qs · ${pc(a.acc)} accuracy · ${lvChip(lvl(a))}</small>${bar(n/ks.length*100,`var(--${s})`)}</button>`}).join("")}
+
+function chapters(){const E=D[view.e],Sb=E[view.s],A=agg(keys(view.e,view.s));
+ app.innerHTML=`<button class="back" data-act="back">← Back</button><h2>${E.name} · ${view.s} ${lvChip(lvl(A))}</h2><p class="sub" style="margin:0 0 8px">${esc(gap(A))}</p>`+
+ [11,12].map(g=>{const n=Sb[g].filter(c=>done[key(view.e,view.s,g,c)]).length;
+  return`<div class="grade"><span>Class ${g}</span><span>${n} / ${Sb[g].length}</span></div>`+Sb[g].map(c=>{const k=key(view.e,view.s,g,c),d=!!done[k],s=S(k);
+   return`<div class="ch${d?" done":""}" style="--c:var(--${view.s})"><div class="row"><span class="n" data-act="open" data-k="${esc(k)}">${esc(c)}<small>${s.att} attempted${s.total?" / "+s.total:""} · ${s.att?pc(s.acc)+" accuracy":"no sessions yet"}</small></span>${lvChip(lvl(s))}<button class="ck" data-act="done" data-k="${esc(k)}" aria-label="Mark PYQs done">${d?"✓":""}</button></div>${view.open===k?panel(k,s):""}</div>`}).join("")}).join("")}
+
+function panel(k,s){const rows=rowsOf(k);
+ return`<div class="panel"><div class="form"><div><label>Total PYQs in chapter</label><input type="number" min="0" id="tot" value="${s.total||""}" data-k="${esc(k)}"></div></div>
+ <h3 style="margin-top:14px">Log a practice session</h3>
+ <div class="form"><div><label>Date</label><input type="date" id="fd" value="${today()}"></div><div><label>Time (minutes)</label><input type="number" min="1" id="ft"></div><div><label>Correct</label><input type="number" min="0" id="fc"></div><div><label>Wrong</label><input type="number" min="0" id="fw"></div><div><label>Unattempted</label><input type="number" min="0" id="fu"></div><button class="btn" data-act="add" data-k="${esc(k)}">Add</button></div>
+ <div class="grid">${stat("Attempted",s.att+(s.total?" / "+s.total:""),"b")}${stat("Correct",s.c,"g")}${stat("Wrong",s.w,"r")}${stat("Unattempted",s.u,"o")}${stat("Accuracy",pc(s.acc),"g")}${stat("Coverage",pc(s.cov))}${stat("Avg Q / hour",f1(s.qph),"b")}${stat("Avg time / Q (min)",f1(s.avg))}${stat("Max time / Q (min)",f1(s.mx),"r")}${stat("Min time / Q (min)",f1(s.mn),"g")}</div>
+ <p style="font-size:.85rem">${lvChip(lvl(s))} ${esc(gap(s))}${s.total?"":" — enter total PYQs to count coverage."}</p>
+ ${rows.length?`<table><tr><th>Date</th><th>Min</th><th>✔</th><th>✘</th><th>–</th><th>Q/hr</th><th>Min/Q</th><th></th></tr>${rows.map((x,i)=>{const a=x.c+x.w;return`<tr><td>${x.d}</td><td>${x.t}</td><td>${x.c}</td><td>${x.w}</td><td>${x.u}</td><td>${a&&x.t?f1(a/(x.t/60)):"–"}</td><td>${a?f1(x.t/a):"–"}</td><td><button class="x" data-act="del" data-k="${esc(k)}" data-i="${i}" aria-label="Delete session">✕</button></td></tr>`}).join("")}</table>`:""}</div>`}
+
+app.addEventListener("click",ev=>{const b=ev.target.closest("[data-act]");if(!b)return;const a=b.dataset.act,k=b.dataset.k;
+ if(a==="exam"){view={e:b.dataset.e,s:null,open:null}}
+ else if(a==="subj"){view.s=b.dataset.s;view.open=null}
+ else if(a==="back"){if(view.s){view.s=null;view.open=null}else view={e:null,s:null,open:null}}
+ else if(a==="open"){view.open=view.open===k?null:k}
+ else if(a==="done"){if(done[k])delete done[k];else done[k]=1;save()}
+ else if(a==="add"){const g=id=>Math.max(0,parseInt(document.getElementById(id).value)||0),t=g("ft"),c=g("fc"),w=g("fw"),u=g("fu");
+  if(!t||(c+w+u)===0){alert("Enter the time taken and at least one question count.");return}
+  (data[k]=data[k]||{total:0,s:[]}).s.push({d:document.getElementById("fd").value||today(),t,c,w,u});save()}
+ else if(a==="del"){data[k].s.splice(+b.dataset.i,1);save()}
+ else if(a==="xls")return xlsx();else if(a==="exj")return exportJ();else if(a==="imj")return fi.click();
+ render()});
+app.addEventListener("change",ev=>{if(ev.target.id==="tot"){const k=ev.target.dataset.k;(data[k]=data[k]||{total:0,s:[]}).total=Math.max(0,parseInt(ev.target.value)||0);save();render()}});
+fi.onchange=()=>fi.files[0]&&importJ(fi.files[0]);
+
+function save(){try{localStorage.setItem("jee_done",JSON.stringify(done));localStorage.setItem("jee_data",JSON.stringify(data));setSt("saved on this device ✓")}catch(e){setSt("could not save – use Download Excel / Export JSON")}}
+
+function xlsx(){if(typeof XLSX==="undefined"){alert("Excel library did not load. Check internet connection and try again.");return}
+ const sum=[["Exam","Subject","Class","Chapter","PYQs done (tick)","Total PYQs","Sessions","Attempted","Correct","Wrong","Unattempted","Total time (min)","Accuracy %","Avg Q/hour","Avg min/Q","Max min/Q","Min min/Q","Coverage %","Level"]],ses=[["Exam","Subject","Class","Chapter","Date","Time (min)","Attempted","Correct","Wrong","Unattempted","Q/hour","Min/Q"]];
+ for(const e of ["mains","adv"])for(const s of SUBJ)for(const g of [11,12])D[e][s][g].forEach(c=>{const k=key(e,s,g,c),r=S(k),nm=D[e].name;
+  sum.push([nm,s,g,c,done[k]?"Yes":"No",r.total,r.n,r.att,r.c,r.w,r.u,r.t,+r.acc.toFixed(1),+r.qph.toFixed(1),+r.avg.toFixed(2),+r.mx.toFixed(2),+r.mn.toFixed(2),+r.cov.toFixed(1),lvl(r)]);
+  rowsOf(k).forEach(x=>{const a=x.c+x.w;ses.push([nm,s,g,c,x.d,x.t,a,x.c,x.w,x.u,a&&x.t?+(a/(x.t/60)).toFixed(1):0,a?+(x.t/a).toFixed(2):0])})});
+ const lv=[["Level","Name","Min accuracy %","Min Q/hour","Min coverage %"],...L.map(l=>[l.n,l.name,l.acc,l.qph,l.cov])];
+ const wb=XLSX.utils.book_new();
+ [["Chapter Summary",sum],["Sessions Log",ses],["Target Levels",lv]].forEach(([n,a])=>{const w=XLSX.utils.aoa_to_sheet(a);w["!cols"]=a[0].map((_,i)=>({wch:i===3?42:14}));XLSX.utils.book_append_sheet(wb,w,n)});
+ XLSX.writeFile(wb,"jee-pyq-progress.xlsx")}
+function exportJ(){const b=new Blob([JSON.stringify({app:"jee-pyq-tracker",saved:new Date().toISOString(),done,data},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="jee-progress.json";a.click()}
+function importJ(f){const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);done=j.done||{};data=j.data||{};save();render()}catch(e){alert("Not a valid progress file")}};r.readAsText(f)}
+try{done=JSON.parse(localStorage.getItem("jee_done")||"{}");data=JSON.parse(localStorage.getItem("jee_data")||"{}")}catch(e){}
 render();setSt("saved on this device ✓");
 </script></body></html>
