@@ -67,6 +67,12 @@ td,th{padding:5px 4px;text-align:left;border-bottom:1px solid var(--line)}
 .cc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px}.hr{text-align:center}
 .toast{position:fixed;left:50%;top:calc(16px + env(safe-area-inset-top,0px));transform:translateX(-50%);max-width:90%;background:linear-gradient(90deg,#ff9a3c,#ff4d6d);color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;z-index:9;box-shadow:0 6px 20px rgba(0,0,0,.3)}
 .L6{background:#c0392b}.L7{background:#d4af37}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4vh 0 4px}.top h1{margin:0;text-align:left;font-size:2rem}
+.upd{box-shadow:0 0 0 2px #22c55e,0 0 14px rgba(34,197,94,.45)!important}
+.ut{display:inline-block;margin-left:8px;font-style:normal;font-size:.68rem;font-weight:700;color:#fff;background:#22c55e;padding:2px 8px;border-radius:99px;vertical-align:middle}
+.lg{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:10px 0}
+.lc{border-radius:10px;padding:10px;color:#fff;font-size:.78rem}.lc>b{display:block;font-size:.9rem;margin-bottom:4px}.lc div{margin-top:3px}.lc div:not(.ok){opacity:.7}.lc small{opacity:.9}.lc.full{box-shadow:0 0 0 3px #ffd54a,0 0 14px rgba(255,213,74,.6)}
+summary{cursor:pointer;color:var(--acc);margin:6px 0}
 .tools{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:28px}
 #st{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));font-size:.75rem;color:var(--mut);background:var(--card);border:1px solid var(--line);padding:4px 10px;border-radius:99px}
 </style></head><body><main id="app"></main><div id="st">loading…</div><input type="file" id="fi" accept=".json" hidden>
@@ -131,31 +137,31 @@ function render(){
 
 function home(){
  const A=agg(allKeys()),n=lvl(A),B=badges();
- app.innerHTML=`<h1>Hello Jainav 👋</h1><p class="sub">Your JEE PYQ tracker</p>${dash()}`+
+ app.innerHTML=`<div class="top"><h1>Hello Jainav 👋</h1>${ONLINE?(ro?'<button class="btn" data-act="unlock">🔒 Edit</button>':'<button class="btn alt" data-act="lock">🔓 Lock</button>'):""}</div><p class="sub">Your JEE PYQ tracker</p>${dash()}`+
  ["mains","adv"].map(e=>{const a=agg(keys(e)),d=keys(e).filter(k=>done[k]).length;
-  return`<button class="big" data-act="exam" data-e="${e}">${D[e].name}<small>${D[e].sub} · ${d} / ${keys(e).length} chapters done · ${a.att} Qs attempted · ${pc(a.acc)} accuracy</small>${bar(keys(e).length?d/keys(e).length*100:0)}</button>`}).join("")+
- `<h3>🎯 Overall target level</h3><div class="ladder">${L.map(l=>`<div class="L${l.n} ${n>=l.n?"on":""}"><b>Level ${l.n}: ${l.name}</b>${l.acc}% acc · ${l.qph} Q/hr · ${l.cov}% PYQs</div>`).join("")}</div>
+  return`<button class="big${grpU(keys(e))?" upd":""}" data-act="exam" data-e="${e}">${D[e].name}${grpU(keys(e))?ut(grpQ(keys(e))+" Qs"):""}<small>${D[e].sub} · ${d} / ${keys(e).length} chapters done · ${a.att} Qs attempted · ${pc(a.acc)} accuracy</small>${bar(keys(e).length?d/keys(e).length*100:0)}</button>`}).join("")+
+ `<h3>🎯 Overall target level</h3><p class="sub" style="margin:0">💎 any one target · 🏆 any two targets · 👑 all three targets</p>${lvlCards(A)}
  <p><b>You are at Level ${n}.</b> ${esc(gap(A))}</p>
  <div class="grid">${stat("Questions attempted",A.att,"b")}${stat("Correct",A.c,"g")}${stat("Wrong",A.w,"r")}${stat("Unattempted",A.u,"o")}${stat("Accuracy",pc(A.acc),"g")}${stat("Avg Q / hour",f1(A.qph),"b")}${stat("Study time (hrs)",f1(A.t/60))}${stat("Day streak",streak(),"o")}</div>
  ${charts()}<h3>🏆 Achievements (${B.filter(b=>b[3]).length} / ${B.length})</h3><div class="badges">${B.map(b=>`<div class="bd ${b[3]?"on":""}"><div class="e">${b[0]}</div><b>${b[1]}</b><small>${b[2]}</small></div>`).join("")}</div>
- <div class="tools"><button class="btn" data-act="xls">⬇ Download Excel</button><button class="btn alt" data-act="exj">⬇ Export JSON backup</button><button class="btn alt ed" data-act="imj">⬆ Import JSON backup</button>${ONLINE?(ro?'<button class="btn" data-act="unlock">🔒 Edit (PIN)</button>':'<button class="btn alt" data-act="lock">🔓 Lock</button>'):""}</div>`}
+ <div class="tools"><button class="btn" data-act="xls">⬇ Download Excel</button><button class="btn alt" data-act="exj">⬇ Export JSON backup</button><button class="btn alt ed" data-act="imj">⬆ Import JSON backup</button></div>`}
 
 function subjects(){const E=D[view.e];
  app.innerHTML=`<button class="back" data-act="back">← Back</button><h2>${E.name}: choose subject</h2>`+SUBJ.map(s=>{const ks=keys(view.e,s),n=ks.filter(k=>done[k]).length,a=agg(ks);
-  return`<button class="big" data-act="subj" data-s="${s}" data-c style="--c:var(--${s})">${s}<small>${n} / ${ks.length} chapters PYQs done · ${a.att} Qs · ${pc(a.acc)} accuracy · ${lvChip(lvl(a))}</small>${bar(n/ks.length*100,`var(--${s})`)}</button>`}).join("")}
+  return`<button class="big${grpU(ks)?" upd":""}" data-act="subj" data-s="${s}" data-c style="--c:var(--${s})">${s}${grpU(ks)?ut(grpQ(ks)+" Qs"):""}<small>${n} / ${ks.length} chapters PYQs done · ${a.att} Qs · ${pc(a.acc)} accuracy · ${lvChip(lvl(a))}</small>${bar(n/ks.length*100,`var(--${s})`)}</button>`}).join("")}
 
 function chapters(){const E=D[view.e],Sb=E[view.s],A=agg(keys(view.e,view.s));
- app.innerHTML=`<button class="back" data-act="back">← Back</button><h2>${E.name} · ${view.s} ${lvChip(lvl(A))}</h2><p class="sub" style="margin:0 0 8px">${esc(gap(A))}</p>`+
+ app.innerHTML=`<button class="back" data-act="back">← Back</button><h2>${E.name} · ${view.s} ${lvChip(lvl(A))}</h2><p class="sub" style="margin:0 0 8px">${esc(gap(A))}</p><details><summary>🎯 ${view.s} level targets (accuracy · speed · PYQs)</summary>${lvlCards(A)}</details>`+
  [11,12].map(g=>{const n=Sb[g].filter(c=>done[key(view.e,view.s,g,c)]).length;
   return`<div class="grade"><span>Class ${g}</span><span>${n} / ${Sb[g].length}</span></div>`+Sb[g].map(c=>{const k=key(view.e,view.s,g,c),d=!!done[k],s=S(k);
-   return`<div class="ch${d?" done":""}" style="--c:var(--${view.s})"><div class="row"><span class="n" data-act="open" data-k="${esc(k)}">${esc(c)}<small>${s.att} attempted${s.total?" / "+s.total:""} · ${s.att?pc(s.acc)+" accuracy":"no sessions yet"}</small></span>${lvChip(lvl(s))}<button class="ck" data-act="done" data-k="${esc(k)}" aria-label="Mark PYQs done">${d?"✓":""}</button></div>${view.open===k?panel(k,s):""}</div>`}).join("")}).join("")}
+   return`<div class="ch${d?" done":""}${chU(k)?" upd":""}" style="--c:var(--${view.s})"><div class="row"><span class="n" data-act="open" data-k="${esc(k)}">${esc(c)}${chU(k)?ut(chQ(k)+" Qs"):""}<small>${s.att} attempted${s.total?" / "+s.total:""} · ${s.att?pc(s.acc)+" accuracy":"no sessions yet"}</small></span>${lvChip(lvl(s))}<button class="ck" data-act="done" data-k="${esc(k)}" aria-label="Mark PYQs done">${d?"✓":""}</button></div>${view.open===k?panel(k,s):""}</div>`}).join("")}).join("")}
 
 function panel(k,s){const rows=rowsOf(k);
  return`<div class="panel"><div class="form"><div><label>Total PYQs in chapter</label><input type="number" min="0" id="tot" value="${s.total||""}" data-k="${esc(k)}"></div></div>
  <h3 style="margin-top:14px">Log a practice session</h3>
  <div class="form"><div><label>Date</label><input type="date" id="fd" value="${today()}"></div><div><label>Time (minutes)</label><input type="number" min="1" id="ft"></div><div><label>Correct</label><input type="number" min="0" id="fc"></div><div><label>Wrong</label><input type="number" min="0" id="fw"></div><div><label>Unattempted</label><input type="number" min="0" id="fu"></div><button class="btn" data-act="add" data-k="${esc(k)}">Add</button></div>
  <div class="grid">${stat("Attempted",s.att+(s.total?" / "+s.total:""),"b")}${stat("Correct",s.c,"g")}${stat("Wrong",s.w,"r")}${stat("Unattempted",s.u,"o")}${stat("Accuracy",pc(s.acc),"g")}${stat("Coverage",pc(s.cov))}${stat("Avg Q / hour",f1(s.qph),"b")}${stat("Avg time / Q (min)",f1(s.avg))}${stat("Max time / Q (min)",f1(s.mx),"r")}${stat("Min time / Q (min)",f1(s.mn),"g")}</div>
- <p style="font-size:.85rem">${lvChip(lvl(s))} ${esc(gap(s))}${s.total?"":" — enter total PYQs to count coverage."}</p>
+ <p style="font-size:.85rem">${lvChip(lvl(s))} ${esc(gap(s))}${s.total?"":" — enter total PYQs to count coverage."}</p>${lvlCards(s)}
  ${rows.length?`<table><tr><th>Date</th><th>Min</th><th>✔</th><th>✘</th><th>–</th><th>Q/hr</th><th>Min/Q</th><th></th></tr>${rows.map((x,i)=>{const a=x.c+x.w;return`<tr><td>${x.d}</td><td>${x.t}</td><td>${x.c}</td><td>${x.w}</td><td>${x.u}</td><td>${a&&x.t?f1(a/(x.t/60)):"–"}</td><td>${a?f1(x.t/a):"–"}</td><td><button class="x" data-act="del" data-k="${esc(k)}" data-i="${i}" aria-label="Delete session">✕</button></td></tr>`}).join("")}</table>`:""}</div>`}
 
 app.addEventListener("click",ev=>{const b=ev.target.closest("[data-act]");if(!b)return;const a=b.dataset.act,k=b.dataset.k;if(ro&&["done","add","del","imj","tadd","tdel","padd","pdel"].includes(a))return;
@@ -250,7 +256,7 @@ function charts(){const A=acts(),t=ld(),days=[...Array(14)].map((_,i)=>addD(t,i-
  pa=[...pl()].sort((a,b)=>a.d<b.d?-1:1).slice(-10).map(x=>({l:sd(x.d),v:x.c+x.w?x.c/(x.c+x.w)*100:0,c:SC[x.s]}));
  return`<h3>📈 Performance charts</h3><div class="grid2">${chart("Questions done per day (14 days)",dq,0,DT[0])}${chart("Questions per hour, by day",dh,0,L[0].qph)}${chart("Subject-wise questions done",sq)}${chart("Practice accuracy % (last 10)",pa,100,L[0].acc,"%")}${chart("JEE Mains test scores (out of 300)",mt,300,250)}${chart("JEE Adv test scores (out of 180 per paper)",at,180,150)}${chart("PW Mains-pattern scores (out of 300)",tlS("pw").filter(x=>x.k==="mains").slice(-10).map(x=>({l:sd(x.d),v:tot(x),c:"#d35400"})),300,250)}${chart("PW Adv-pattern scores (out of 180)",tlS("pw").filter(x=>x.k==="adv").slice(-10).map(x=>({l:sd(x.d)+" P"+x.p,v:tot(x),c:"#c0392b"})),180,150)}</div>`}
 function dash(){const dn=Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/864e5);
- return`<div class="hero"><b>${QUOTES[dn%QUOTES.length]}</b></div>`+targets()+analysis()+`<div style="margin-top:10px"><button class="big" data-act="pg" data-p="tests">📝 Mock Tests<small>JEE Mains (300 marks) · JEE Advanced (2 papers × 180) — log scores, see levels</small></button><button class="big" data-act="pg" data-p="pw">🎓 PW Tests<small>Physics Wallah tests — scores, levels &amp; subject analysis, same as Mock Tests</small></button><button class="big" data-act="pg" data-p="prac">🏋️ Practice Questions<small>Practice with daily &amp; weekly targets, extra focus on your weak subject</small></button></div>`}
+ return`<div class="hero"><b>${QUOTES[dn%QUOTES.length]}</b></div>`+targets()+analysis()+`<div style="margin-top:10px"><button class="big${tN("mock")?" upd":""}" data-act="pg" data-p="tests">📝 Mock Tests${tUt("mock")}<small>JEE Mains (300 marks) · JEE Advanced (2 papers × 180) — log scores, see levels</small></button><button class="big${tN("pw")?" upd":""}" data-act="pg" data-p="pw">🎓 PW Tests${tUt("pw")}<small>Physics Wallah tests — scores, levels &amp; subject analysis, same as Mock Tests</small></button><button class="big${pN()?" upd":""}" data-act="pg" data-p="prac">🏋️ Practice Questions${pN()?ut(pN()+" Qs"):""}<small>Practice with daily &amp; weekly targets, extra focus on your weak subject</small></button></div>`}
 function testsPage(src){const PW=src==="pw",all=tl().map((x,i)=>({...x,i})).filter(x=>srcOf(x)===src).sort((a,b)=>a.d<b.d?1:-1),lv=(T,v)=>T.filter(t=>v>=t).length;
  const lad=(T,k,nm)=>{const b=bestT(k,src),n=lv(T,b);return`<div class="ladder">${T.map((v,i)=>`<div class="L${i+1} ${b>=v?"on":""}"><b>${v}+</b>Level ${i+1}</div>`).join("")}</div><p>${nm} best: <b>${b}</b> — ${n?`Level ${n} achieved! ${n===T.length?"🏆 Top level!":"Next target: "+T[n]+"+"}`:`first target is ${T[0]}+ marks`}</p>`};
  const g={};tl().filter(x=>x.k==="adv"&&srcOf(x)===src).forEach(x=>(g[x.n]=g[x.n]||{})[x.p]=tot(x));
@@ -276,6 +282,15 @@ function addP(){const g=id=>document.getElementById(id).value,n=id=>Math.max(0,p
  (data._p=data._p||[]).push({d:g("zd")||today(),x:g("zx"),s:g("zs"),t,c,w,u});save();cheerS(c+w,t);return true}
 function tsh(src){return[["Date","Test","Type","Paper","Phy marks","Chem marks","Maths marks","Total","Phy ✔","Phy ✘","Chem ✔","Chem ✘","Maths ✔","Maths ✘"],...tlS(src).map(x=>[x.d,x.n,x.k==="mains"?"JEE Mains":"JEE Advanced",x.p||"",x.m.Physics,x.m.Chemistry,x.m.Maths,tot(x),x.c.Physics,x.w.Physics,x.c.Chemistry,x.w.Chemistry,x.c.Maths,x.w.Maths])]}
 function psh(){return[["Date","Exam","Subject","Time (min)","Correct","Wrong","Unattempted","Attempted","Q/hour"],...pl().map(x=>{const a=x.c+x.w;return[x.d,x.x==="adv"?"JEE Advanced":"JEE Mains",x.s,x.t,x.c,x.w,x.u,a,x.t?+(a/(x.t/60)).toFixed(1):0]})]}
+/* ===== today highlights + split level targets ===== */
+const chQ=k=>rowsOf(k).filter(x=>x.d===ld()).reduce((n,x)=>n+x.c+x.w,0),chU=k=>rowsOf(k).some(x=>x.d===ld());
+const grpQ=ks=>ks.reduce((n,k)=>n+chQ(k),0),grpU=ks=>ks.some(chU);
+const ut=t=>`<em class="ut">● Updated today${t?" · "+t:""}</em>`;
+const tN=src=>tl().filter(x=>srcOf(x)===src&&x.d===ld()).length,pN=()=>pl().filter(x=>x.d===ld()).reduce((n,x)=>n+x.c+x.w,0);
+const tUt=src=>tN(src)?ut(tN(src)+" test"+(tN(src)>1?"s":"")):"";
+function lvlCards(s){const r=(ok,t,now)=>`<div class="${ok?"ok":""}">${ok?"✅":"⬜"} ${t} <small>(now ${now})</small></div>`;
+ return`<div class="lg">${L.map(l=>{const a=s.n>0&&s.acc>=l.acc,q=s.n>0&&s.qph>=l.qph,c=s.n>0&&s.cov>=l.cov,all=a&&q&&c,k=a+q+c,ic=["","💎","🏆","👑"][k];
+  return`<div class="lc L${l.n}${all?" full":""}"><b>Level ${l.n} · ${l.name}${ic?` <span title="${k} of 3 targets achieved" style="font-size:1.05rem">${ic}</span>`:""}</b>${r(a,"Accuracy "+l.acc+"%+",pc(s.acc))}${r(q,l.qph+"+ Q/hour",f1(s.qph))}${r(c,l.cov+"% PYQs done",pc(s.cov))}</div>`}).join("")}</div>`}
 try{done=JSON.parse(localStorage.getItem("jee_done")||"{}");data=JSON.parse(localStorage.getItem("jee_data")||"{}")}catch(e){}
 applyRo();render();setSt(ONLINE?"loading shared progress…":"saved on this device ✓");
 </script></body></html>
