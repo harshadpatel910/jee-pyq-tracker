@@ -137,7 +137,7 @@ function render(){
 
 function home(){
  const A=agg(allKeys()),n=lvl(A),B=badges();
- app.innerHTML=`<div class="top"><h1>Hello Jainav 👋</h1>${ONLINE?(ro?'<button class="btn" data-act="unlock">🔒 Edit</button>':'<button class="btn alt" data-act="lock">🔓 Lock</button>'):""}</div><p class="sub">Your JEE PYQ tracker</p>${dash()}`+
+ app.innerHTML=`<div class="top"><h1>Hiii Jainav 👋</h1>${ONLINE?(ro?'<button class="btn" data-act="unlock">🔒 Edit</button>':'<button class="btn alt" data-act="lock">🔓 Lock</button>'):""}</div><p class="sub">Your JEE PYQ tracker</p>${dash()}`+
  ["mains","adv"].map(e=>{const a=agg(keys(e)),d=keys(e).filter(k=>done[k]).length;
   return`<button class="big${grpU(keys(e))?" upd":""}" data-act="exam" data-e="${e}">${D[e].name}${grpU(keys(e))?ut(grpQ(keys(e))+" Qs"):""}<small>${D[e].sub} · ${d} / ${keys(e).length} chapters done · ${a.att} Qs attempted · ${pc(a.acc)} accuracy</small>${bar(keys(e).length?d/keys(e).length*100:0)}</button>`}).join("")+
  `<h3>🎯 Overall target level</h3><p class="sub" style="margin:0">💎 any one target · 🏆 any two targets · 👑 all three targets</p>${lvlCards(A)}
