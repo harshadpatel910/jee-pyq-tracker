@@ -145,7 +145,7 @@ function home(){
  app.innerHTML=`<div class="top"><h1>Hello Jainav 👋</h1>${ONLINE?(ro?'<button class="btn" data-act="unlock">🔒 Edit</button>':'<button class="btn alt" data-act="lock">🔓 Lock</button>'):""}</div><p class="sub">Your JEE PYQ tracker</p>${dash()}`+
  ["mains","adv"].map(e=>{const a=agg(keys(e)),d=keys(e).filter(k=>done[k]).length;
   return`<button class="big${grpU(keys(e))?" upd":""}" data-act="exam" data-e="${e}">${D[e].name}${grpU(keys(e))?ut(grpQ(keys(e))+" Qs"):""}<small>${D[e].sub} · ${d} / ${keys(e).length} chapters done · ${a.att} Qs attempted · ${pc(a.acc)} accuracy</small>${bar(keys(e).length?d/keys(e).length*100:0)}</button>`}).join("")+
- `<h3>🎯 Overall target level</h3><p class="sub" style="margin:0">💎 any one target · 🏆 any two targets · 👑 all three targets</p>${lvBlock()}
+ `<h3>🎯 Overall target level</h3><p class="sub" style="margin:0">💎 any one target · 🏆 any two targets · 👑 all three targets · Speed (Q/hour) uses the latest 7 days</p>${lvBlock()}
  <div class="grid">${stat("Working-day streak (best "+bestStreak()+")",streak(),"o")}</div>
  ${charts()}<h3>🏆 Achievements (${B.filter(b=>b[3]).length} / ${B.length})</h3><div class="badges">${B.map(b=>`<div class="bd ${b[3]?"on":""}"><div class="e">${b[0]}</div><b>${b[1]}</b><small>${b[2]}</small></div>`).join("")}</div>
  <div class="tools"><button class="btn" data-act="xls">⬇ Download Excel</button><button class="btn alt" data-act="exj">⬇ Export JSON backup</button><button class="btn alt ed" data-act="imj">⬆ Import JSON backup</button></div>`}
@@ -331,7 +331,8 @@ function reportPage(){const d=view.rd||ld(),PY=[];
  <p><button class="btn alt" onclick="print()">🖨 Print / Save as PDF</button></p>`}${chTable(d)}`}
 /* ===== v7: per-exam levels, working-day streak ===== */
 function streak(){const ds=new Set([...acts().map(a=>a.d),...tl().map(x=>x.d)]);let t=ld(),n=0;if(!ds.has(t))t=addD(t,-1);while(ds.has(t)){n++;t=addD(t,-1)}return n}
-function lvBlock(){return["mains","adv"].map(e=>{const a=agg(keys(e)),n=lvl(a,e);return`<h3 style="font-size:1rem;margin:14px 0 4px">${e==="adv"?"🎯 JEE Advanced":"🎯 JEE Mains"} — Level ${n}</h3>${lvlCards(a,e)}<p>${esc(gap(a,e))}</p><div class="grid">${stat("Questions attempted",a.att,"b")}${stat("Correct",a.c,"g")}${stat("Wrong",a.w,"r")}${stat("Unattempted",a.u,"o")}${stat("Accuracy",pc(a.acc),"g")}${stat("Avg Q / hour",f1(a.qph),"b")}${stat("Study time (hrs)",f1(a.t/60))}</div>`}).join("")}
+function aggR(e){const ks=keys(e),a=agg(ks),f=addD(ld(),-6),r=calc(ks.flatMap(rowsOf).filter(x=>x.d>=f&&x.d<=ld()),0);a.qph=r.qph;return a}
+function lvBlock(){return["mains","adv"].map(e=>{const a=aggR(e),n=lvl(a,e);return`<h3 style="font-size:1rem;margin:14px 0 4px">${e==="adv"?"🎯 JEE Advanced":"🎯 JEE Mains"} — Level ${n}</h3>${lvlCards(a,e)}<p>${esc(gap(a,e))}</p><div class="grid">${stat("Questions attempted",a.att,"b")}${stat("Correct",a.c,"g")}${stat("Wrong",a.w,"r")}${stat("Unattempted",a.u,"o")}${stat("Accuracy",pc(a.acc),"g")}${stat("Avg Q / hour (last 7 days)",f1(a.qph),"b")}${stat("Study time (hrs)",f1(a.t/60))}</div>`}).join("")}
 /* ===== v8: practice chapters, chapter-wise report ===== */
 const chOpts=(e,s)=>`<option value="">— chapter (optional) —</option>`+[11,12].flatMap(g=>D[e][s][g].map(c=>`<option value="${g}|${esc(c)}">Class ${g} · ${esc(c)}</option>`)).join("");
 const pracQ=k=>{const[e,s,g,c]=k.split("|");return pl().filter(x=>x.x===e&&x.s===s&&+x.g===+g&&x.ch===c).reduce((n,x)=>n+x.c+x.w,0)};
