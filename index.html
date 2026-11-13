@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>JEE PYQ Tracker V1.18</title>
+<title>JEE PYQ Tracker V1.19</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f5f1;--fg:#1d1d1b;--card:#fff;--line:#d9d6cc;--acc:#2f5bd8;--ok:#1f9d55;--mut:#6b6a63;--bad:#d64545;--warn:#e89a1c;--Physics:#2f6fe0;--Chemistry:#16a085;--Maths:#8e44ad}
@@ -81,7 +81,7 @@ details.chd{border:1px solid var(--line);border-radius:8px;padding:6px 10px;marg
 #st{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));font-size:.75rem;color:var(--mut);background:var(--card);border:1px solid var(--line);padding:4px 10px;border-radius:99px}
 .tk{display:flex;gap:8px;padding:6px 0;align-items:flex-start;font-size:.88rem}.tk input{width:20px;height:20px;flex:none}.tk.on span{text-decoration:line-through;color:var(--mut)}.tabs{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}.dc{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--c,var(--acc));border-radius:10px;padding:10px 12px;margin-bottom:10px}.dc small{color:var(--mut)}
 #ver{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));font-size:.75rem;color:var(--mut);background:var(--card);border:1px solid var(--line);padding:4px 10px;border-radius:99px;z-index:5}
-</style></head><body><main id="app"></main><div id="ver">V1.18</div><div id="st">loading…</div><input type="file" id="fi" accept=".json" hidden>
+</style></head><body><main id="app"></main><div id="ver">V1.19</div><div id="st">loading…</div><input type="file" id="fi" accept=".json" hidden>
 <script>
 const D={
 mains:{name:"JEE Mains",sub:"NTA syllabus",
@@ -144,7 +144,7 @@ function render(){
 
 function home(){
  const A=agg(allKeys()),n=lvl(A),B=badges();
- app.innerHTML=`<div class="top"><h1>Hello Jainav 👋</h1>${ONLINE?(ro?'<button class="btn" data-act="unlock">🔒 Edit</button>':'<button class="btn alt" data-act="lock">🔓 Lock</button>'):""}</div><p class="sub">Your JEE PYQ tracker · V1.18</p>${dash()}`+
+ app.innerHTML=`<div class="top"><h1>Hello Jainav 👋</h1>${ONLINE?(ro?'<button class="btn" data-act="unlock">🔒 Edit</button>':'<button class="btn alt" data-act="lock">🔓 Lock</button>'):""}</div><p class="sub">Your JEE PYQ tracker · V1.19</p>${dash()}`+
  ["mains","adv"].map(e=>{const a=agg(keys(e)),d=keys(e).filter(k=>done[k]).length;
   return`<button class="big${grpU(keys(e))?" upd":""}" data-act="exam" data-e="${e}">${D[e].name}${grpU(keys(e))?ut(grpQ(keys(e))+" Qs"):""}<small>${D[e].sub} · ${d} / ${keys(e).length} chapters done · ${a.att} Qs attempted · ${pc(a.acc)} accuracy</small>${bar(keys(e).length?d/keys(e).length*100:0)}</button>`}).join("")+
  `<h3>🎯 Overall target level</h3><p class="sub" style="margin:0">💎 any one target · 🏆 any two targets · 👑 all three targets · Speed (Q/hour) uses the latest 7 days</p>${lvBlock()}
@@ -266,14 +266,15 @@ function analysis(src,ex){const r=sstat(src,ex),v=SUBJ.filter(s=>r[s].sc!=null).
  <div class="tc"><small>🎯 Today's practice target — weakest subject (${ex=="adv"?"Adv":"Mains"})</small><b>${p}: ${Math.min(dn,POOR_Q)} / ${POOR_Q}</b>${bar(dn/POOR_Q*100,"linear-gradient(90deg,#ff4d6d,#ffb84a)")}<p>${dn>=POOR_Q?"🎉 Target done! "+p+" is getting stronger!":`Practice ${POOR_Q-dn} more ${p} questions today to turn it into a strength.`}</p></div>`}
 function chart(title,it,max,goal,unit){const W=320,H=150,n=it.length;if(!n)return`<div class="cc"><b>${title}</b><p class="sub" style="margin:36px 0">No data yet</p></div>`;
  const gs=Array.isArray(goal)?goal:goal?[goal]:[],m=Math.max(max||0,...gs,...it.map(i=>i.seg?Math.max(i.v,i.seg.reduce((n,g)=>n+Math.max(0,g.v),0)):i.v),1),gx=(W-30)/n,bw=Math.max(3,Math.min(28,gx-(n>16?1.5:4))),dn=n>16,y=v=>H-22-(Math.max(v,0)/m)*(H-42);
- const stk=(a,x)=>{let ac=0;return a.seg.map(g=>{const v=Math.max(0,g.v),y1=y(ac+v),y0=y(ac);ac+=v;return`<rect x="${x}" y="${y1}" width="${bw}" height="${y0-y1}" style="fill:${g.c}"><title>${g.s}: ${g.v}</title></rect>`}).join("")};
- return`<div class="cc"><b>${title}</b>${it.some(i=>i.seg)?`<div style="font-size:.72rem;margin:2px 0"><span style="color:var(--Physics)">■</span> Physics &nbsp;<span style="color:var(--Chemistry)">■</span> Chemistry &nbsp;<span style="color:var(--Maths)">■</span> Maths</div>`:""}<svg viewBox="0 0 ${W} ${H}" width="100%">${gs.map((g,i)=>{const A=Array.isArray(goal),c=A?GC[i%GC.length]:"#ff4d6d";return`<line x1="26" x2="${W}" y1="${y(g)}" y2="${y(g)}" stroke="${c}" stroke-width="1.2" stroke-dasharray="4 3"/><text x="${A?25:W}" y="${y(g)+(A?2.5:-3)}" font-size="7" text-anchor="end" fill="${c}">${A?g:"goal "+g+(unit||"")}</text>`}).join("")}${it.map((a,i)=>{const x=28+i*gx+(gx-bw)/2;return`${a.seg?stk(a,x):`<rect x="${x}" y="${y(a.v)}" width="${bw}" height="${H-22-y(a.v)}" rx="${dn?1:3}" style="fill:${a.c||"var(--acc)"}"><title>${esc(a.l)}: ${a.f?a.v.toFixed(1):Math.round(a.v)}</title></rect>`}${dn?(i%7===0||i===n-1)&&a.v>0?`<text x="${x+bw/2}" y="${y(a.v)-3}" font-size="6.5" text-anchor="middle" fill="currentColor">${a.f?a.v.toFixed(1):Math.round(a.v)}</text>`:"":`<text x="${x+bw/2}" y="${y(a.v)-3}" font-size="8" text-anchor="middle" fill="currentColor">${a.f?a.v.toFixed(1):Math.round(a.v)}</text>`}${!dn||i%5===0||i===n-1?`<text x="${x+bw/2}" y="${H-9}" font-size="${dn?6.5:7.5}" text-anchor="middle" fill="currentColor" opacity=".7">${esc(a.l)}</text>`:""}`}).join("")}</svg></div>`}
+ const fv=v=>Math.round(v*10)/10,stk=(a,x)=>{let ac=0;const tt=`${esc(a.l)}\n`+a.seg.map(g=>`${g.s}: ${fv(g.v)}`).join("\n")+`\nTotal: ${fv(a.seg.reduce((n,g)=>n+Math.max(0,g.v),0))}`;return a.seg.map(g=>{const v=Math.max(0,g.v),y1=y(ac+v),y0=y(ac);ac+=v;return`<rect x="${x}" y="${y1}" width="${bw}" height="${y0-y1}" style="fill:${g.c}"><title>${tt}</title></rect>`}).join("")};
+ const lab=(a,x)=>{const v=a.seg?a.seg.reduce((n,g)=>n+Math.max(0,g.v),0):a.v,t=a.f?a.v.toFixed(1):fv(v);return dn?`<text transform="translate(${x+bw/2+2.2} ${y(v)-3}) rotate(-90)" font-size="6.5" fill="currentColor">${t}</text>`:`<text x="${x+bw/2}" y="${y(v)-3}" font-size="8" text-anchor="middle" fill="currentColor">${t}</text>`};
+ return`<div class="cc"><b>${title}</b>${it.some(i=>i.seg)?`<div style="font-size:.72rem;margin:2px 0"><span style="color:var(--Physics)">■</span> Physics &nbsp;<span style="color:var(--Chemistry)">■</span> Chemistry &nbsp;<span style="color:var(--Maths)">■</span> Maths</div>`:""}<svg viewBox="0 0 ${W} ${H}" width="100%">${gs.map((g,i)=>{const A=Array.isArray(goal),c=A?GC[i%GC.length]:"#ff4d6d";return`<line x1="26" x2="${W}" y1="${y(g)}" y2="${y(g)}" stroke="${c}" stroke-width="1.2" stroke-dasharray="4 3"/><text x="${A?25:W}" y="${y(g)+(A?2.5:-3)}" font-size="7" text-anchor="end" fill="${c}">${A?g:"goal "+g+(unit||"")}</text>`}).join("")}${it.map((a,i)=>{const x=28+i*gx+(gx-bw)/2;return`${a.seg?stk(a,x):`<rect x="${x}" y="${y(a.v)}" width="${bw}" height="${H-22-y(a.v)}" rx="${dn?1:3}" style="fill:${a.c||"var(--acc)"}"><title>${esc(a.l)}: ${a.f?a.v.toFixed(1):Math.round(a.v)}</title></rect>`}${lab(a,x)}${!dn||i%5===0||i===n-1?`<text x="${x+bw/2}" y="${H-9}" font-size="${dn?6.5:7.5}" text-anchor="middle" fill="currentColor" opacity=".7">${esc(a.l)}</text>`:""}`}).join("")}</svg></div>`}
 function charts(){const A=acts(),t=ld(),days=[...Array(30)].map((_,i)=>addD(t,i-29));
  const dq=days.map(d=>({l:sd(d),v:sum(A,d,d),c:"#2f9bff"})),
  dh=ex=>days.map(d=>{const a=A.filter(x=>x.d===d&&x.t>0&&!x.rev&&x.x===ex),tm=a.reduce((n,x)=>n+x.t,0);return{l:sd(d),v:tm?a.reduce((n,x)=>n+x.q,0)/(tm/60):0,c:"#16a085"}}),
  ds=days.map(d=>({l:sd(d),v:A.filter(x=>x.d===d).reduce((n,x)=>n+x.t,0)/60,f:1,c:"#f39c12"})),
  dw=days.map(d=>({l:sd(d),v:sum(A,addD(d,-6),d),c:"#6c5ce7"})),
- wk=[...Array(14)].map((_,i)=>{const w=addD(wkS(t),(i-13)*7);return{l:sd(w),v:sum(A,w,addD(w,6)),c:"#7e57c2"}}),
+ wk=[...Array(14)].map((_,i)=>{const w=addD(wkS(t),(i-13)*7);const seg=SUBJ.map(s=>({v:sum(A.filter(x=>x.s===s),w,addD(w,6)),c:SC[s],s}));return{l:sd(w),v:seg.reduce((n,g)=>n+g.v,0),seg}}),
  sq=SUBJ.map(s=>({l:s.slice(0,4)+".",v:A.filter(x=>x.s===s).reduce((n,x)=>n+x.q,0),c:SC[s]})),
  mt=tlS("mock").filter(x=>x.k==="mains").slice(-10).map(x=>({l:sd(x.d),v:tot(x),seg:sg(x),c:"#8e44ad"})),
  at=tlS("mock").filter(x=>x.k==="adv").slice(-10).map(x=>({l:sd(x.d)+" P"+x.p,v:tot(x),seg:sg(x),c:"#e67e22"})),
